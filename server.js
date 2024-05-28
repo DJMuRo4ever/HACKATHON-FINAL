@@ -68,6 +68,10 @@ passport.deserializeUser((user, done) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.get('/', (req, res) => {
+  res.redirect('/login');
+});
+
 // Ruta de inicio de sesión que redirige al inicio de sesión de Google
 app.get('/login', (req, res) => {
   res.sendFile(__dirname + '/login.html');
