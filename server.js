@@ -25,6 +25,9 @@ async function connectToMongoDB() {
     await client.connect();
     const db = client.db('BACKEND'); // Reemplaza con el nombre de tu base de datos
     clientesCollection = db.collection('USUARIOS');
+    productosCollection = db.collection('PRODUCTOS');
+    comprasCollection = db.collection('COMPRAS');
+    carritoCollection = db.collection('CARRITO');
     console.log('Connected to MongoDB and the USUARIOS collection');
   } catch (err) {
     console.error('Error connecting to MongoDB', err);
