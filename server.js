@@ -22,7 +22,7 @@ const client = new MongoClient(uri, {
 let clientesCollection;
 client.connect(err => {
   if (err) {
-    console.error('Error connecting to MongoDB', err);
+    console.error('Error conectando a MongoDB clientes', err);
     process.exit(1);
   }
   const db = client.db('BACKEND'); // Reemplaza con el nombre de tu base de datos
