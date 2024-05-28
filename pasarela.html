@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartera de Pagos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cartera de Pagos</h1>
+        <form id="paymentForm">
+            <label for="amount">Monto a pagar:</label>
+            <input type="number" id="amount" name="amount" required>
+            <button type="submit">Pagar</button>
+        </form>
+        <div id="paymentResult" class="message"></div>
+    </div>
+
+    <script>
+        const paymentForm = document.getElementById('paymentForm');
+        const paymentResult = document.getElementById('paymentResult');
+
+        paymentForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const amount = parseFloat(document.getElementById('amount').value);
+
+            // Simulación de éxito del 80% de las transacciones
+            const successRate = Math.random();
+            let message, className;
+
+            if (successRate <= 0.8) {
+                message = `La transacción de $${amount.toFixed(2)} fue aceptada correctamente.`;
+                className = 'success';
+            } else {
+                message = `La transacción de $${amount.toFixed(2)} fue rechazada. Inténtalo de nuevo.`;
+                className = 'error';
+            }
+
+            // Mostrar el resultado de la transacción
+            paymentResult.innerHTML = `<p class="${className}">${message}</p>`;
+        });
+    </script>
+</body>
+</html>

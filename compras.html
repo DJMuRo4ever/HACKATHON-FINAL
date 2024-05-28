@@ -81,19 +81,25 @@
         let userId;
 
         function cargarCarrito() {
-            fetch(`/cargar-carrito/${userId}`)
-                .then(response => response.json())
-                .then(data => {
-                    const carritoContainer = document.getElementById('carrito-lista');
-                    carritoContainer.innerHTML = '';
-                    data.carrito.forEach(producto => {
-                        const productoElement = document.createElement('li');
-                        productoElement.textContent = producto.nombre + " - " + producto.precio;
-                        carritoContainer.appendChild(productoElement);
-                    });
-                })
-                .catch(error => console.error('Error al cargar el carrito:', error));
-        }
+    fetch(`/cargar-carrito/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+            const carritoContainer = document.getElementById('carrito-lista');
+            const totalCarritoElement = document.getElementById('totalCarrito');
+            let totalCarrito = 0;
+            carritoContainer.innerHTML = '';
+            data.carrito.forEach(producto => {
+                const productoElement = document.createElement('li');
+                // Agregar el signo de dólar al precio
+                productoElement.textContent = `$${producto.precio.toFixed(2)} - ${producto.nombre}`;
+                totalCarrito += producto.precio;
+                carritoContainer.appendChild(productoElement);
+            });
+            // Mostrar el total del carrito con el signo de dólar
+            totalCarritoElement.textContent = `$${totalCarrito.toFixed(2)}`;
+        })
+        .catch(error => console.error('Error al cargar el carrito:', error));
+}
     
         window.onload = function() {
             const params = new URLSearchParams(window.location.search);
@@ -149,6 +155,11 @@
                 console.error('No se proporcionó el userId en la URL');
             }
         };
+        const comprarButton = document.getElementById('comprarButton');
+
+    comprarButton.addEventListener('click', () => {
+    window.location.href = 'pasarela.html';
+});
     </script>
     
     
