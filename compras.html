@@ -74,12 +74,13 @@
     <div id="carrito-container">
         <h3>Carrito</h3>
         <ul id="carrito-lista"></ul>
+        <p>Total del carrito: <span id="totalCarrito"></span></p> <!-- Agregamos un elemento para mostrar el total del carrito -->
         <button id="comprarButton">Comprar</button>
     </div>
 
     <script>
         let userId;
-
+        let totalCarrito = 0; // Definimos totalCarrito como variable global
 // Función para cargar la lista completa del carrito y mostrarla en la página
 function cargarCarrito() {
     fetch(`/cargar-carrito/${userId}`)
