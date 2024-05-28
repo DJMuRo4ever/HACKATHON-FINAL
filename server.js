@@ -6,10 +6,11 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 const app = express();
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://deyvidmunozromero:aetW9fo7fB4S52Gd@backend.nbq5xhj.mongodb.net/?retryWrites=true&w=majority&appName=backend";
 
-// Configurar el cliente de MongoDB
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://deyvidmunozromero:<password>@backend.nbq5xhj.mongodb.net/?retryWrites=true&w=majority&appName=backend";
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -18,16 +19,33 @@ const client = new MongoClient(uri, {
   }
 });
 
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+run().catch(console.dir);
+
+
+
 // Conectar a MongoDB y configurar la colección de clientes
 let clientesCollection;
 client.connect(err => {
+
   if (err) {
     console.error('Error conectando a MongoDB clientes', err);
     process.exit(1);
   }
   const db = client.db('BACKEND'); // Reemplaza con el nombre de tu base de datos
   clientesCollection = db.collection('USUARIOS');
-  console.log('Connected to MongoDB');
+  console.log('Connected to USUARIOS');
 });
 
 // Configurar express-session
