@@ -135,6 +135,26 @@ app.get('/api/user/:id', async (req, res) => {
   }
 });
 
+// Ruta para cargar el carrito del usuario
+app.get('/cargar-carrito/:userId', async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    // Buscar el usuario por su ID y obtener su carrito
+    const user = await clientesCollection.findOne({ cliente_id: userId });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    const carrito = user.carrito || []; // Si el carrito está vacío, devuelve un arreglo vacío
+
+    res.json({ carrito });
+  } catch (error) {
+    console.error('Error al cargar el carrito:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
 
 app.get('/cargar-productos', async (req, res) => {
   try {
