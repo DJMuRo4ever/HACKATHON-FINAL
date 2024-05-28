@@ -116,6 +116,33 @@ app.get('/auth/google/callback',
   }
 );
 
+app.get('/api/user/:id', async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const user = await clientesCollection.findOne({ cliente_id: userId });
+
+    if (!user) {
+      return res.status(404).send('Usuario no encontrado');
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Error querying MongoDB', error);
+    res.status(500).send('Error interno del servidor');
+  }
+});
+
+app.get('/cargar-productos', async (req, res) => {
+  try {
+    const products = await productosCollection.find().toArray();
+    res.json(products);
+  } catch (error) {
+    console.error('Error querying MongoDB', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 
 app.post('/mandarRegistro', async (req, res) => {
   const { nombre, telefono, userId, contrasena, correo } = req.body;
