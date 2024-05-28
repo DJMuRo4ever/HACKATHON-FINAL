@@ -5,116 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bienvenido a la Tienda</title>
     <style>
-        /* Estilo para los elementos de lista */
-        li {
-            margin-bottom: 10px; /* Añade un margen inferior de 10px */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
         }
 
-        /* Estilo para los botones */
-        .button {
-            margin-left: 10px; /* Añade un margen izquierdo de 10px */
+        h1, h2 {
+            margin-top: 20px;
+            text-align: center;
         }
 
-        /* Estilo para el contenedor del carrito */
+        #nombreUsuario {
+            font-weight: bold;
+        }
+
         #carrito-container {
-            position: absolute;
-            top: 50px;
+            position: fixed;
+            top: 10px;
             right: 10px;
             border: 1px solid #ccc;
             padding: 10px;
-            background-color: #f9f9f9;
+            background-color: #fff;
             width: 200px;
             max-height: 300px;
             overflow-y: auto;
         }
 
-        /* Estilo para los elementos del carrito */
-        .carrito-item {
-            margin-bottom: 5px;
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
             border-bottom: 1px solid #ddd;
             padding-bottom: 5px;
+        }
+
+        button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <!-- Nombre del usuario en la parte superior derecha -->
-    <div style="position: absolute; top: 10px; right: 10px;">Usuario: <span id="nombreUsuario"></span></div>
+    <div style="position: absolute; top: 10px; left: 10px;">Usuario: <span id="nombreUsuario"></span></div>
 
     <h1>BIENVENIDO A LA TIENDA</h1>
     
-    <!-- Contenedor para mostrar la lista de productos -->
-    <ul id="productos"></ul>
+    <div id="productos"></div>
     
-    <!-- Contenedor del carrito -->
     <div id="carrito-container">
         <h3>Carrito</h3>
         <ul id="carrito-lista"></ul>
-        <button id="comprarButton" class="button">Comprar</button>
+        <button id="comprarButton">Comprar</button>
     </div>
 
     <script>
-        // Función para cargar la lista completa del carrito y mostrarla en la página
+        let userId;
+
         function cargarCarrito() {
-            fetch(`/cargar-carrito/${userId}`) // Aquí se incluye el userId como parte de la URL
+            fetch(`/cargar-carrito/${userId}`)
                 .then(response => response.json())
                 .then(data => {
-                    // Obtener el contenedor del carrito en el HTML
                     const carritoContainer = document.getElementById('carrito-lista');
-                    // Limpiar el contenido actual del carrito
                     carritoContainer.innerHTML = '';
-                    // Recorrer los productos del carrito y crear elementos para mostrarlos en la página
                     data.carrito.forEach(producto => {
-                        // Crear un elemento de lista para mostrar el producto en el carrito
                         const productoElement = document.createElement('li');
                         productoElement.textContent = producto.nombre + " - " + producto.precio;
-                        // Agregar el elemento de producto al contenedor del carrito
                         carritoContainer.appendChild(productoElement);
                     });
                 })
                 .catch(error => console.error('Error al cargar el carrito:', error));
         }
     
-        // Script para cargar los productos y mostrar el nombre de usuario en la página
         window.onload = function() {
-            // Obtener el parámetro userId de la URL
             const params = new URLSearchParams(window.location.search);
-            const userId = params.get('userId');
+            userId = params.get('userId');
 
             if (userId) {
-                // Hacer una solicitud GET al servidor para obtener el nombre de usuario
                 fetch(`/api/user/${userId}`)
                     .then(response => response.json())
                     .then(data => {
-                        // Obtener el nombre de usuario del objeto de respuesta
                         const nombreUsuario = data.nombreUsuario;
-        
-                        // Mostrar el nombre de usuario en la página
                         document.getElementById('nombreUsuario').textContent = nombreUsuario;
         
-                        // Hacer una solicitud GET para cargar los productos desde el servidor
                         fetch('/cargar-productos')
                             .then(response => response.json())
                             .then(data => {
-                                // Obtener el contenedor de productos en el HTML
                                 const productosContainer = document.getElementById('productos');
         
-                                // Recorrer la lista de productos y crear un elemento de lista para cada uno
                                 data.forEach(producto => {
-                                    // Crear un elemento de lista para mostrar el producto
-                                    const productoElement = document.createElement('li');
-                                    productoElement.textContent = producto.nombre + " - " + producto.precio;
-        
-                                    // Crear un botón "Agregar al carrito" para cada producto
-                                    const agregarAlCarritoButton = document.createElement('button');
-                                    agregarAlCarritoButton.textContent = 'Agregar al carrito';
-                                    agregarAlCarritoButton.className = 'agregar-carrito-button'; // Agregar una clase CSS al botón
-        
-                                    // Agregar un evento click al botón para agregar el producto al carrito
+                                    const productoElement = document.createElement('div');
+                                    productoElement.innerHTML = `
+                                        <p><strong>${producto.nombre}</strong> - ${producto.precio}</p>
+                                        <button class="agregar-carrito-button">Agregar al carrito</button>
+                                        <hr>
+                                    `;
+
+                                    const agregarAlCarritoButton = productoElement.querySelector('.agregar-carrito-button');
                                     agregarAlCarritoButton.addEventListener('click', () => {
-                                        // Obtener el nombre del producto
                                         const productName = producto.nombre;
         
-                                        // Hacer una solicitud POST al servidor para agregar el producto al carrito
                                         fetch('/agregar-al-carrito', {
                                             method: 'POST',
                                             headers: {
@@ -124,19 +132,12 @@
                                         })
                                         .then(response => response.json())
                                         .then(result => {
-                                            // Manejar la respuesta del servidor, por ejemplo, mostrar un mensaje de éxito
                                             console.log('Producto agregado al carrito:', result);
-        
-                                            // Actualizar el carrito después de agregar un nuevo producto
                                             cargarCarrito();
                                         })
                                         .catch(error => console.error('Error al agregar producto al carrito:', error));
                                     });
-        
-                                    // Agregar el botón al elemento de producto
-                                    productoElement.appendChild(agregarAlCarritoButton);
-        
-                                    // Agregar el elemento de producto al contenedor de productos
+
                                     productosContainer.appendChild(productoElement);
                                 });
                             })
