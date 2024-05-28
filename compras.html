@@ -120,7 +120,7 @@
                                             headers: {
                                                 'Content-Type': 'application/json'
                                             },
-                                            body: JSON.stringify({ productName: productName })
+                                            body: JSON.stringify({ userId: userId, productName: productName })
                                         })
                                         .then(response => response.json())
                                         .then(result => {

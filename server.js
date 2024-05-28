@@ -124,17 +124,17 @@ app.get('/api/user/:id', async (req, res) => {
 
   try {
     const user = await clientesCollection.findOne({ cliente_id: userId });
-
-    if (!user) {
-      return res.status(404).send('Usuario no encontrado');
+    if (user) {
+      res.json({ nombreUsuario: user.nombre });
+    } else {
+      res.status(404).json({ error: 'Usuario no encontrado' });
     }
-
-    res.json(user);
   } catch (error) {
     console.error('Error querying MongoDB', error);
-    res.status(500).send('Error interno del servidor');
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
+
 
 app.get('/cargar-productos', async (req, res) => {
   try {
@@ -166,6 +166,32 @@ app.post('/mandarRegistro', async (req, res) => {
     res.status(500).send('Error interno del servidor');
   }
 });
+
+// Ruta para agregar productos al carrito
+app.post('/agregar-al-carrito', async (req, res) => {
+  const { userId, productName } = req.body;
+
+  try {
+    // Buscar el producto por nombre
+    const product = await productosCollection.findOne({ nombre: productName });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Producto no encontrado' });
+    }
+
+    // Agregar el producto al carrito del usuario
+    await clientesCollection.updateOne(
+      { cliente_id: userId },
+      { $push: { carrito: product } }
+    );
+
+    res.json({ message: 'Producto agregado al carrito', product });
+  } catch (error) {
+    console.error('Error al agregar producto al carrito:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 
 // Iniciar el servidor
 const port = 3000;
