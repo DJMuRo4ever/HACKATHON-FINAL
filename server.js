@@ -5,25 +5,34 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const app = express();
-const oracledb = require('oracledb');
 
-// Configurar la conexión a la base de datos Oracle
-const connectionConfig = {
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  connectString: process.env.DB_NAME, // Utiliza el nombre de la base de datos como connectString
-};
 
-// Conectar a la base de datos Oracle
-oracledb.getConnection(connectionConfig, (error, connection) => {
-  if (error) {
-    console.error('Error al conectar a la base de datos Oracle:', error);
-    return;
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://deyvidmunozromero:aetW9fo7fB4S52Gd@backend.nbq5xhj.mongodb.net/?retryWrites=true&w=majority&appName=backend";
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
   }
-  console.log('Conexión a la base de datos Oracle establecida correctamente');
-  // Establecer la conexión como una variable global para que esté disponible en otros módulos si es necesario
-  module.exports = connection;
 });
+
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+run().catch(console.dir);
+
 
 
 
