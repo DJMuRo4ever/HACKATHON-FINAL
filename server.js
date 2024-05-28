@@ -91,6 +91,10 @@ app.get('/compras.html', (req, res) => {
   res.sendFile(__dirname + '/compras.html');
 });
 
+app.get('/pasarela.html', (req, res) => {
+  res.sendFile(__dirname + '/pasarela.html');
+});
+
 // Ruta de autenticación de Google
 app.get('/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
