@@ -4,13 +4,13 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const bodyParser = require('body-parser');
 require('dotenv').config();
-const app = express();
-
-
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://deyvidmunozromero:Deyvid159@backend.nbq5xhj.mongodb.net/?retryWrites=true&w=majority&appName=backend";
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const app = express();
+const uri = process.env.MONGO_URI; // Mejor si la URI está en el .env
+let clientesCollection;
+
+// Configurar MongoClient
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -19,47 +19,34 @@ const client = new MongoClient(uri, {
   }
 });
 
-async function run() {
+async function connectToMongoDB() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
+    // Conectar al servidor de MongoDB
     await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("BACKEND").command({ ping: 1 });
-    console.log("Pinged TO BACKEND. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+    const db = client.db('BACKEND'); // Reemplaza con el nombre de tu base de datos
+    clientesCollection = db.collection('USUARIOS');
+    console.log('Connected to MongoDB and the USUARIOS collection');
+  } catch (err) {
+    console.error('Error connecting to MongoDB', err);
+    process.exit(1); // Salir si no se puede conectar
   }
 }
-run().catch(console.dir);
 
-
-
-// Conectar a MongoDB y configurar la colección de clientes
-let clientesCollection;
-client.connect(err => {
-
-  if (err) {
-    console.error('Error conectando a MongoDB clientes', err);
-    process.exit(1);
-  }
-  const db = client.db('BACKEND'); // Reemplaza con el nombre de tu base de datos
-  clientesCollection = db.collection('USUARIOS');
-  console.log('Connected to USUARIOS');
-});
+// Llama a la función para conectarse a MongoDB
+connectToMongoDB();
 
 // Configurar express-session
 app.use(session({
-  secret: process.env.SESSION_SECRET, // Debes definir una variable SESSION_SECRET en tu archivo .env
+  secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: true,
 }));
 
 app.use(express.static('public'));
 
 // Configurar el middleware de procesamiento de cuerpo
-app.use(bodyParser.urlencoded({ extended: true })); // Para procesar datos de formularios
-app.use(bodyParser.json()); // Para procesar datos JSON
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 // Configurar la estrategia de OAuth de Google
 passport.use(new GoogleStrategy({
@@ -68,7 +55,6 @@ passport.use(new GoogleStrategy({
     callbackURL: process.env.GOOGLE_CALLBACK_URL,
   },
   (accessToken, refreshToken, profile, done) => {
-    // Lógica para manejar el perfil de usuario después de la autenticación exitosa
     return done(null, profile);
   }
 ));
@@ -90,7 +76,6 @@ app.get('/', (req, res) => {
   res.redirect('/login');
 });
 
-// Ruta de inicio de sesión que redirige al inicio de sesión de Google
 app.get('/login', (req, res) => {
   res.sendFile(__dirname + '/login.html');
 });
@@ -112,27 +97,21 @@ app.get('/auth/google',
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   async (req, res) => {
-    // Autenticación exitosa
     const userId = req.user.id;
-    const userEmail = req.user.emails[0].value; // Asegúrate de obtener el correo electrónico correctamente
+    const userEmail = req.user.emails[0].value;
 
-    // Almacenar el ID único del usuario en la variable de sesión
     req.session.userId = userId;
 
     try {
-      // Consultar si el usuario ya está presente en la colección de clientes
       const user = await clientesCollection.findOne({ cliente_id: userId });
 
       if (!user) {
-        // El usuario no está presente en la colección de clientes, redirigir a la página de registro
         return res.redirect(`/registro.html?userId=${userId}&userName=${req.user.displayName}&userEmail=${userEmail}`);
       } else {
-        // El usuario ya está presente en la colección de clientes, redirigir a la página principal de compras
         return res.redirect('/compras.html');
       }
     } catch (error) {
       console.error('Error querying MongoDB', error);
-      // Manejar errores
       return res.redirect('/login');
     }
   }
@@ -142,7 +121,6 @@ app.post('/mandarRegistro', async (req, res) => {
   const { nombre, telefono, userId, contrasena, correo } = req.body;
 
   try {
-    // Insertar el nuevo usuario en la colección de clientes
     await clientesCollection.insertOne({
       cliente_id: userId,
       nombre: nombre,
@@ -152,7 +130,6 @@ app.post('/mandarRegistro', async (req, res) => {
       fecha_registro: new Date()
     });
 
-    // Redirigir al usuario a la página principal de compras
     res.redirect('/compras.html');
   } catch (error) {
     console.error('Error al insertar datos del usuario:', error);
