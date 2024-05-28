@@ -55,7 +55,7 @@
     <script>
         // Función para cargar la lista completa del carrito y mostrarla en la página
         function cargarCarrito() {
-            fetch('/cargar-carrito')
+            fetch(`/cargar-carrito/${userId}`) // Aquí se incluye el userId como parte de la URL
                 .then(response => response.json())
                 .then(data => {
                     // Obtener el contenedor del carrito en el HTML
