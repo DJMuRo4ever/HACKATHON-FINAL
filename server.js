@@ -93,7 +93,6 @@ app.get('/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
-// Ruta de retorno de Google OAuth
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   async (req, res) => {
@@ -108,7 +107,7 @@ app.get('/auth/google/callback',
       if (!user) {
         return res.redirect(`/registro.html?userId=${userId}&userName=${req.user.displayName}&userEmail=${userEmail}`);
       } else {
-        return res.redirect('/compras.html');
+        return res.redirect(`/compras.html?userId=${userId}`);
       }
     } catch (error) {
       console.error('Error querying MongoDB', error);
@@ -116,6 +115,7 @@ app.get('/auth/google/callback',
     }
   }
 );
+
 
 app.post('/mandarRegistro', async (req, res) => {
   const { nombre, telefono, userId, contrasena, correo } = req.body;
