@@ -2,31 +2,29 @@ const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-const bodyParser = require('body-parser'); // Importa body-parser
-const async = require('async');
+const bodyParser = require('body-parser');
 require('dotenv').config();
 const app = express();
-const mysql = require('mysql');
+const oracledb = require('oracledb');
 
-// Configurar la conexión a la base de datos MySQL
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
+// Configurar la conexión a la base de datos Oracle
+const connectionConfig = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
-});
+  connectString: process.env.DB_NAME, // Utiliza el nombre de la base de datos como connectString
+};
 
-// Conectar a la base de datos MySQL
-connection.connect((error) => {
+// Conectar a la base de datos Oracle
+oracledb.getConnection(connectionConfig, (error, connection) => {
   if (error) {
-    console.error('Error al conectar a la base de datos:', error);
+    console.error('Error al conectar a la base de datos Oracle:', error);
     return;
   }
-  console.log('Conexión a la base de datos MySQL establecida correctamente');
+  console.log('Conexión a la base de datos Oracle establecida correctamente');
+  // Establecer la conexión como una variable global para que esté disponible en otros módulos si es necesario
+  module.exports = connection;
 });
 
-// Asegúrate de exportar la conexión para que esté disponible en otros módulos si es necesario
-module.exports = connection;
 
 
 
@@ -272,7 +270,19 @@ connection.query('SELECT * FROM carrito WHERE cliente_id = ?', [userId], (error,
 
 });
 
+// Ruta de prueba para probar la conexión a la base de datos Oracle
+app.get('/prueba', (req, res) => {
+  // Realizar una consulta simple a la base de datos para verificar la conexión
+  connection.query('SELECT 1 + 1 AS result', (error, results) => {
+      if (error) {
+          console.error('Error al ejecutar la consulta:', error);
+          return res.status(500).json({ error: 'Error interno del servidor' });
+      }
 
+      // Éxito: enviar el resultado de la consulta como respuesta
+      res.json({ result: results[0].result });
+  });
+});
 
 
 // Iniciar el servidor
