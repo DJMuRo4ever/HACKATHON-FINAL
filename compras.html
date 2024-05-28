@@ -80,13 +80,14 @@
     <script>
         let userId;
 
-        function cargarCarrito() {
+// Función para cargar la lista completa del carrito y mostrarla en la página
+function cargarCarrito() {
     fetch(`/cargar-carrito/${userId}`)
         .then(response => response.json())
         .then(data => {
             const carritoContainer = document.getElementById('carrito-lista');
-            const totalCarritoElement = document.getElementById('totalCarrito');
-            let totalCarrito = 0;
+            const totalCarritoElement = document.getElementById('totalCarrito'); // Nuevo elemento para mostrar el total del carrito
+            let totalCarrito = 0; // Variable para almacenar el total del carrito
             carritoContainer.innerHTML = '';
             data.carrito.forEach(producto => {
                 const productoElement = document.createElement('li');
@@ -157,8 +158,10 @@
         };
         const comprarButton = document.getElementById('comprarButton');
 
-    comprarButton.addEventListener('click', () => {
-    window.location.href = 'pasarela.html';
+        comprarButton.addEventListener('click', () => {
+    // Redireccionar a pasarela.html con el monto total del carrito como parámetro en la URL
+    const url = `pasarela.html?total=${totalCarrito.toFixed(2)}`;
+    window.location.href = url;
 });
     </script>
     
