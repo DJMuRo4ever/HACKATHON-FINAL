@@ -82,7 +82,7 @@
         <form id="paymentForm">
             <label for="amount">Monto a pagar:</label>
             <!-- Mostrar el monto total del carrito obtenido de la URL -->
-            <input type="text" id="amount" name="amount" value="<?php echo $_GET['total']; ?>" readonly>
+            <input type="text" id="amount" name="amount" readonly>
             <label for="cardNumber">Número de tarjeta:</label>
             <input type="text" id="cardNumber" name="cardNumber" pattern="[0-9]{16}" placeholder="1234 5678 9012 3456" required>
             <label for="expiryDate">Fecha de vencimiento:</label>
@@ -98,10 +98,17 @@
         const paymentForm = document.getElementById('paymentForm');
         const paymentResult = document.getElementById('paymentResult');
 
+        // Obtener el valor del parámetro 'total' de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const totalAmount = urlParams.get('total');
+
+        // Mostrar el valor del total en el campo de monto a pagar
+        document.getElementById('amount').value = totalAmount;
+
         paymentForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            const amount = parseFloat(document.getElementById('amount').value);
+            const amount = parseFloat(totalAmount);
             const cardNumber = document.getElementById('cardNumber').value;
             const expiryDate = document.getElementById('expiryDate').value;
             const cvv = document.getElementById('cvv').value;
