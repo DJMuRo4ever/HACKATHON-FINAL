@@ -26,7 +26,7 @@ client.connect(err => {
     process.exit(1);
   }
   const db = client.db('BACKEND'); // Reemplaza con el nombre de tu base de datos
-  clientesCollection = db.collection('clientes');
+  clientesCollection = db.collection('USUARIOS');
   console.log('Connected to MongoDB');
 });
 
