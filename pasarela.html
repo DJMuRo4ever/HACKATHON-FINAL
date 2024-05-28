@@ -40,6 +40,9 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
+            /* Hacer que el campo de texto sea de solo lectura */
+            pointer-events: none;
+            background-color: #f2f2f2;
         }
         input[type="date"],
         input[type="number"] {
@@ -78,7 +81,8 @@
         <h1>Cartera de Pagos</h1>
         <form id="paymentForm">
             <label for="amount">Monto a pagar:</label>
-            <input type="number" id="amount" name="amount" required>
+            <!-- Mostrar el monto total del carrito obtenido de la URL -->
+            <input type="text" id="amount" name="amount" value="<?php echo $_GET['total']; ?>" readonly>
             <label for="cardNumber">Número de tarjeta:</label>
             <input type="text" id="cardNumber" name="cardNumber" pattern="[0-9]{16}" placeholder="1234 5678 9012 3456" required>
             <label for="expiryDate">Fecha de vencimiento:</label>
@@ -120,3 +124,4 @@
     </script>
 </body>
 </html>
+
