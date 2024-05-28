@@ -80,7 +80,7 @@
 
     <script>
         let userId;
-        let totalCarrito = 0; // Definimos totalCarrito como variable global
+        let totalCarrito;
 // Función para cargar la lista completa del carrito y mostrarla en la página
 function cargarCarrito() {
     fetch(`/cargar-carrito/${userId}`)
@@ -88,7 +88,7 @@ function cargarCarrito() {
         .then(data => {
             const carritoContainer = document.getElementById('carrito-lista');
             const totalCarritoElement = document.getElementById('totalCarrito'); // Nuevo elemento para mostrar el total del carrito
-            let totalCarrito = 0; // Variable para almacenar el total del carrito
+            totalCarrito = 0; // Variable para almacenar el total del carrito
             carritoContainer.innerHTML = '';
             data.carrito.forEach(producto => {
                 const productoElement = document.createElement('li');
