@@ -35,6 +35,8 @@ async function connectToMongoDB() {
   }
 }
 
+
+
 // Llama a la función para conectarse a MongoDB
 connectToMongoDB();
 
@@ -74,6 +76,38 @@ passport.deserializeUser((user, done) => {
 // Configurar express y Passport
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Definir el esquema de compra
+const compraSchema = new mongoose.Schema({
+  userId: { type: String, required: true },
+  totalAmount: { type: Number, required: true },
+  cardNumber: { type: String, required: true },
+  expiryDate: { type: String, required: true },
+  cvv: { type: String, required: true }
+});
+
+// Crear el modelo de compra
+const Compra = mongoose.model('Compra', compraSchema);
+
+// Ruta para registrar una compra
+app.post('/registrar-compra', async (req, res) => {
+  const { userId, totalAmount, cardNumber, expiryDate, cvv } = req.body;
+  try {
+    const nuevaCompra = new Compra({
+      userId,
+      totalAmount,
+      cardNumber,
+      expiryDate,
+      cvv
+    });
+    await nuevaCompra.save();
+    console.log('Compra registrada con éxito:', nuevaCompra);
+    res.status(200).json({ message: 'Compra registrada con éxito', compra: nuevaCompra });
+  } catch (error) {
+    console.error('Error al guardar la compra:', error);
+    res.status(500).json({ message: 'Error al registrar la compra', error });
+  }
+});
 
 app.get('/', (req, res) => {
   res.redirect('/login');
@@ -215,6 +249,26 @@ app.post('/agregar-al-carrito', async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
+
+app.post('/vaciar-carrito/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+      // Asume que tienes un modelo de Usuario
+      const usuario = await Usuario.findOne({ _id: userId });
+      if (usuario) {
+          usuario.carrito = []; // Vaciar el carrito
+          await usuario.save();
+          res.status(200).json({ message: 'Carrito vaciado con éxito' });
+      } else {
+          res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+  } catch (error) {
+      res.status(500).json({ message: 'Error al vaciar el carrito', error });
+  }
+});
+
+
 
 
 // Iniciar el servidor

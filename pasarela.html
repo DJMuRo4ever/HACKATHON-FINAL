@@ -40,7 +40,6 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
-            /* Hacer que el campo de texto sea de solo lectura */
             pointer-events: none;
             background-color: #f2f2f2;
         }
@@ -95,39 +94,66 @@
     </div>
 
     <script>
-        const paymentForm = document.getElementById('paymentForm');
-        const paymentResult = document.getElementById('paymentResult');
+paymentForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
-        // Obtener el valor del parámetro 'total' de la URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const totalAmount = urlParams.get('total');
+    const amount = parseFloat(totalAmount);
+    const cardNumber = document.getElementById('cardNumber').value;
+    const expiryDate = document.getElementById('expiryDate').value;
+    const cvv = document.getElementById('cvv').value;
+    const userId = new URLSearchParams(window.location.search).get('userId'); // Obtener el userId de la URL
 
-        // Mostrar el valor del total en el campo de monto a pagar
-        document.getElementById('amount').value = totalAmount;
+    // Simulación de éxito del 80% de las transacciones
+    const successRate = Math.random();
+    let message, className;
 
-        paymentForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
+    if (successRate <= 0.8) {
+        // Realiza la solicitud POST para registrar la compra
+        try {
+            const response = await fetch('/registrar-compra', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId,
+                    totalAmount: amount,
+                    cardNumber,
+                    expiryDate,
+                    cvv
+                })
+            });
 
-            const amount = parseFloat(totalAmount);
-            const cardNumber = document.getElementById('cardNumber').value;
-            const expiryDate = document.getElementById('expiryDate').value;
-            const cvv = document.getElementById('cvv').value;
+            const result = await response.json();
 
-            // Simulación de éxito del 80% de las transacciones
-            const successRate = Math.random();
-            let message, className;
+            if (response.ok) {
+                // Vaciar el carrito del usuario
+                await fetch(`/vaciar-carrito/${userId}`, {
+                    method: 'POST'
+                });
 
-            if (successRate <= 0.8) {
                 message = `La transacción de $${amount.toFixed(2)} fue aceptada correctamente.`;
                 className = 'success';
+
+                // Redirigir a compras.html con el userId en la URL después de un pago exitoso
+                window.location.href = `compras.html?userId=${userId}`;
             } else {
-                message = `La transacción de $${amount.toFixed(2)} fue rechazada. Inténtalo de nuevo.`;
+                message = `Error al registrar la compra: ${result.message}`;
                 className = 'error';
             }
+        } catch (error) {
+            message = `Error al registrar la compra: ${error.message}`;
+            className = 'error';
+        }
+    } else {
+        message = `La transacción de $${amount.toFixed(2)} fue rechazada. Inténtalo de nuevo.`;
+        className = 'error';
+    }
 
-            // Mostrar el resultado de la transacción
-            paymentResult.innerHTML = `<p class="${className}">${message}</p>`;
-        });
+    // Mostrar el resultado de la transacción
+    paymentResult.innerHTML = `<p class="${className}">${message}</p>`;
+});
+
     </script>
 </body>
 </html>

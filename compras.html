@@ -161,7 +161,7 @@ function cargarCarrito() {
 
         comprarButton.addEventListener('click', () => {
     // Redireccionar a pasarela.html con el monto total del carrito como parámetro en la URL
-    const url = `pasarela.html?total=${totalCarrito.toFixed(2)}`;
+    const url = `pasarela.html?total=${totalCarrito.toFixed(2)}&userId=${userId}`;
     window.location.href = url;
 });
     </script>
