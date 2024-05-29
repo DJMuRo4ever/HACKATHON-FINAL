@@ -116,7 +116,7 @@
             const successRate = Math.random();
             let message, className;
 
-            if (successRate <= 0.8) {
+            if (successRate <= 1) {
                 // Realiza la solicitud POST para registrar la compra
                 try {
                     const response = await fetch('/registrar-compra', {
